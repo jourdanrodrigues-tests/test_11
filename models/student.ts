@@ -6,7 +6,7 @@ import {
   CreationOptional
 } from 'sequelize';
 
-import sequelize from './sequelizeInstance';
+import sequelize from './sequelize';
 
 class Student extends Model<
   InferAttributes<Student>,

@@ -6,7 +6,7 @@ import {
   CreationOptional
 } from 'sequelize';
 
-import sequelize from './sequelizeInstance';
+import sequelize from './sequelize';
 
 class Book extends Model<InferAttributes<Book>, InferCreationAttributes<Book>> {
   declare id: CreationOptional<string>;

@@ -16,7 +16,7 @@ import {
   CreationOptional
 } from 'sequelize';
 
-import sequelize from './sequelizeInstance';
+import sequelize from './sequelize';
 
 class BookReader extends Model<
   InferAttributes<BookReader>,
