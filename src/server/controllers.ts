@@ -1,4 +1,4 @@
-import Student from '../models/student';
+import { Student } from '../models/student';
 import { Request, Response } from 'express';
 
 export function getStudents(req: Request, res: Response): void {
