@@ -86,10 +86,19 @@ export const bookReaderController: Omit<
       }),
     body('bookId')
       .isUUID()
-      .custom(async (bookId) => {
-        const readCount = await BookReader.count({ where: { bookId } });
-        if (readCount < 3) return (await Book.findByPk(bookId)) !== null;
-        throw new Error('Book is being read by 3 people or more already.');
+      .custom(async (bookId, { req }) => {
+        const readers = await BookReader.findAll({ where: { bookId } });
+        if (readers.length >= 3) {
+          throw new Error('Book is being read by 3 people or more already.');
+        }
+        if ((await Book.findByPk(bookId)) === null) {
+          throw new Error('Book not found.');
+        }
+        const alreadyReading = readers.find(
+          ({ studentId }) => studentId === req.body.studentId
+        );
+        if (!alreadyReading) return;
+        throw new Error('This student is already reading this book.');
       })
   ],
   list: listMethod(BookReader),
