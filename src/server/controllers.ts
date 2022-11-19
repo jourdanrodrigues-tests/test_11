@@ -34,9 +34,10 @@ export const studentController: TController = {
       .isEmail()
       .normalizeEmail()
       .custom(async (email) => {
-        // TODO: Validate email
+        // TODO: Implement email confirmation
         const student = await Student.findOne({ where: { email } });
-        return student === null;
+        if (student === null) return true;
+        throw new Error('This email is already in use by another student.');
       }),
     body('birthDate').optional({ nullable: true }).isISO8601()
   ],
