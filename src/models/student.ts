@@ -8,7 +8,7 @@ export class Student extends Sequelize.Model<
   declare name: string;
   declare lastName: string;
   declare email: string;
-  declare birthDate: string;
+  declare birthDate: string | null;
 }
 
 export default (sequelize: Sequelize.Sequelize) =>
