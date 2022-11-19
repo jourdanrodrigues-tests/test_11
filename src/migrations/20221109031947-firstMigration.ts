@@ -29,7 +29,7 @@ module.exports = {
       },
       name: { type: Sequelize.STRING, allowNull: false },
       lastName: { type: Sequelize.STRING, allowNull: false },
-      email: { type: Sequelize.STRING, allowNull: false },
+      email: { type: Sequelize.STRING, allowNull: false, unique: true },
       birthDate: { type: Sequelize.DATE, allowNull: true }
     });
     await queryInterface.createTable('Book', {
@@ -67,6 +67,11 @@ module.exports = {
           deferrable: Sequelize.Deferrable.INITIALLY_IMMEDIATE
         }
       }
+    });
+    await queryInterface.addConstraint('Items', {
+      fields: ['bookId', 'studentId'],
+      type: 'unique',
+      name: 'unique_book_per_student'
     });
   },
   async down(queryInterface: Sequelize.QueryInterface) {

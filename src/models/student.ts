@@ -21,7 +21,7 @@ export default (sequelize: Sequelize.Sequelize) =>
       },
       name: { type: Sequelize.STRING, allowNull: false },
       lastName: { type: Sequelize.STRING, allowNull: false },
-      email: { type: Sequelize.STRING, allowNull: false },
+      email: { type: Sequelize.STRING, allowNull: false, unique: true },
       birthDate: { type: Sequelize.DATE, allowNull: true }
     },
     { sequelize }
