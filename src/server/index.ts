@@ -11,5 +11,6 @@ app.use(express.json());
 app.use(routes);
 
 sequelize.sync().then(() => {
+  // eslint-disable-next-line no-console
   app.listen(PORT, () => console.log(`Server started on the port ${PORT}`));
 });

@@ -1,8 +1,6 @@
 import { Student } from '../models/student';
 import { Request, Response } from 'express';
-import { SequelizeErrorHandler, DatabaseErrorHandler } from './errorHandling';
-import { body, ValidationChain } from 'express-validator';
-import { hasErrors } from './validation';
+import { body, ValidationChain, validationResult } from 'express-validator';
 import { Book } from '../models/book';
 import { ModelStatic } from 'sequelize';
 
@@ -48,6 +46,7 @@ export const bookController: TController = {
 };
 
 function buildController(
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   model: ModelStatic<any>
 ): Omit<TController, 'validateCreate' | 'validateUpdate'> {
   return { list, get, create, update, deleteOne };
@@ -56,55 +55,48 @@ function buildController(
     model.findAll().then((items) => res.json(items));
   }
 
-  function get(req: Request, res: Response): void {
-    model
-      .findByPk(req.params.id)
-      .then((item) => {
-        if (item === null) {
-          res.sendStatus(404);
-        } else {
-          res.json(item);
-        }
-      })
-      .catch(DatabaseErrorHandler(res));
+  async function get(req: Request, res: Response): Promise<void> {
+    const item = await model.findByPk(req.params.id);
+    if (item === null) {
+      res.sendStatus(404);
+    } else {
+      res.json(item);
+    }
   }
 
   function create(req: Request, res: Response): void {
     if (hasErrors(req, res)) return;
-    model
-      .create(req.body)
-      .then((item) => res.json(item))
-      .catch(SequelizeErrorHandler(res));
+    model.create(req.body).then((item) => res.json(item));
   }
 
-  function update(req: Request, res: Response): void {
+  async function update(req: Request, res: Response): Promise<void> {
     if (hasErrors(req, res)) return;
     if (Object.keys(req.body).length === 0) {
-      // No change to be made here
-      get(req, res);
+      // No changes to be made here
+      await get(req, res);
       return;
     }
-    const bookId = req.params.id;
-    Book.update(req.body, {
-      where: { id: bookId },
+    const [affected, students] = await model.update(req.body, {
+      where: { id: req.params.id },
       returning: true
-    })
-      .then(([affected, students]) => {
-        if (affected === 0) {
-          res.sendStatus(404);
-        } else {
-          // Since there is an affected row, we can assume it's in this array
-          res.json(students.find(({ id }) => id === bookId));
-        }
-      })
-      .catch(DatabaseErrorHandler(res));
+    });
+    if (affected === 0) {
+      res.sendStatus(404);
+    } else {
+      // Since there is an affected row, we can assume it's in this array
+      res.json(students.find(({ id }) => id === req.params.id));
+    }
   }
 
-  function deleteOne(req: Request, res: Response): void {
-    Book.destroy({ where: { id: req.params.id } })
-      .then((affected) => {
-        res.sendStatus(affected === 1 ? 204 : 404);
-      })
-      .catch(DatabaseErrorHandler(res));
+  async function deleteOne(req: Request, res: Response): Promise<void> {
+    const affected = await model.destroy({ where: { id: req.params.id } });
+    res.sendStatus(affected === 1 ? 204 : 404);
   }
+}
+
+function hasErrors(req: Request, res: Response): boolean {
+  const errors = validationResult(req);
+  if (errors.isEmpty()) return false;
+  res.status(400).json({ errors: errors.array() });
+  return true;
 }
