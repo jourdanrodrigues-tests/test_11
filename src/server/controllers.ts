@@ -1,17 +1,23 @@
-import { Student } from '../models/student';
 import { Request, Response } from 'express';
 import { body, ValidationChain, validationResult } from 'express-validator';
-import { Book } from '../models/book';
 import { ModelStatic } from 'sequelize';
 
-type TController = {
-  validateCreate: ValidationChain[];
-  validateUpdate: ValidationChain[];
+import { Student } from '../models/student';
+import { Book } from '../models/book';
+
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+type Model = ModelStatic<any>;
+
+type TControllerMethods = {
   list(req: Request, res: Response): void;
   get(req: Request, res: Response): void;
   create(req: Request, res: Response): void;
   update(req: Request, res: Response): void;
-  deleteOne(req: Request, res: Response): void;
+  delete(req: Request, res: Response): void;
+};
+type TController = TControllerMethods & {
+  validateCreate: ValidationChain[];
+  validateUpdate: ValidationChain[];
 };
 
 export const studentController: TController = {
@@ -26,7 +32,11 @@ export const studentController: TController = {
     body('lastName').optional().isLength({ min: 1, max: 32 }),
     body('birthDate').optional({ nullable: true }).isISO8601()
   ],
-  ...buildController(Student)
+  list: listMethod(Student),
+  get: getMethod(Student),
+  update: updateMethod(Student),
+  create: createMethod(Student),
+  delete: deleteMethod(Student)
 };
 
 export const bookController: TController = {
@@ -42,42 +52,51 @@ export const bookController: TController = {
     body('description').optional().isLength({ min: 1 }),
     body('publishedAt').optional().isISO8601()
   ],
-  ...buildController(Book)
+  list: listMethod(Book),
+  get: getMethod(Book),
+  update: updateMethod(Book),
+  create: createMethod(Book),
+  delete: deleteMethod(Book)
 };
 
-function buildController(
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  model: ModelStatic<any>
-): Omit<TController, 'validateCreate' | 'validateUpdate'> {
-  return { list, get, create, update, deleteOne };
-
-  function list(req: Request, res: Response): void {
+function listMethod(model: Model): (req: Request, res: Response) => void {
+  return (req, res) => {
     model.findAll().then((items) => res.json(items));
-  }
+  };
+}
 
-  async function get(req: Request, res: Response): Promise<void> {
+function getMethod(
+  model: Model
+): (req: Request, res: Response) => Promise<void> {
+  return async (req, res) => {
     const item = await model.findByPk(req.params.id);
     if (item === null) {
       res.sendStatus(404);
     } else {
       res.json(item);
     }
-  }
+  };
+}
 
-  function create(req: Request, res: Response): void {
+function createMethod(model: Model): (req: Request, res: Response) => void {
+  return (req, res) => {
     if (hasErrors(req, res)) return;
     model.create(req.body).then((item) => res.json(item));
-  }
+  };
+}
 
-  async function update(req: Request, res: Response): Promise<void> {
+function updateMethod(
+  model: Model
+): (req: Request, res: Response) => Promise<void> {
+  return async (req, res) => {
     // TODO: Handle "updatedAt" flag (if it exists)
     if (hasErrors(req, res)) return;
     if (Object.keys(req.body).length === 0) {
       // No changes to be made here
-      await get(req, res);
+      await getMethod(model)(req, res);
       return;
     }
-    const [affected, students] = await model.update(req.body, {
+    const [affected, items] = await model.update(req.body, {
       where: { id: req.params.id },
       returning: true
     });
@@ -85,14 +104,18 @@ function buildController(
       res.sendStatus(404);
     } else {
       // Since there is an affected row, we can assume it's in this array
-      res.json(students.find(({ id }) => id === req.params.id));
+      res.json(items.find(({ id }) => id === req.params.id));
     }
-  }
+  };
+}
 
-  async function deleteOne(req: Request, res: Response): Promise<void> {
+function deleteMethod(
+  model: Model
+): (req: Request, res: Response) => Promise<void> {
+  return async (req, res) => {
     const affected = await model.destroy({ where: { id: req.params.id } });
     res.sendStatus(affected === 1 ? 204 : 404);
-  }
+  };
 }
 
 function hasErrors(req: Request, res: Response): boolean {
