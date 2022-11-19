@@ -70,6 +70,7 @@ function buildController(
   }
 
   async function update(req: Request, res: Response): Promise<void> {
+    // TODO: Handle "updatedAt" flag (if it exists)
     if (hasErrors(req, res)) return;
     if (Object.keys(req.body).length === 0) {
       // No changes to be made here
