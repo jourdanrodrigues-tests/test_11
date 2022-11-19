@@ -1,20 +1,30 @@
 import express from 'express';
-import { studentController } from './controllers';
+import { studentController, bookController } from './controllers';
 
 const routes = express.Router();
 
-routes.get('/students', studentController.getStudents);
-routes.get('/students/:id', studentController.findStudent);
+routes.get('/students', studentController.list);
+routes.get('/students/:id', studentController.get);
 routes.post(
   '/students',
-  studentController.validateNewStudent,
-  studentController.addStudent
+  studentController.validateCreate,
+  studentController.create
 );
 routes.patch(
   '/students/:id',
-  studentController.validateStudentUpdate,
-  studentController.updateStudent
+  studentController.validateUpdate,
+  studentController.update
 );
-routes.delete('/students/:id', studentController.deleteStudent);
+routes.delete('/students/:id', studentController.deleteOne);
+
+routes.get('/books', bookController.list);
+routes.get('/books/:id', bookController.get);
+routes.post('/books', bookController.validateCreate, bookController.create);
+routes.patch(
+  '/books/:id',
+  bookController.validateUpdate,
+  bookController.update
+);
+routes.delete('/books/:id', bookController.deleteOne);
 
 export default routes;
