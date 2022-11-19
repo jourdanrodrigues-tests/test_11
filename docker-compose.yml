@@ -4,7 +4,7 @@ services:
   server:
     build: .
     container_name: psik_server
-    command: npx nodemon server/index.ts
+    command: npx nodemon src/server/index.ts
     restart: unless-stopped
     env_file: .env
     environment:
@@ -26,3 +26,5 @@ services:
       - POSTGRES_USER=username
       - POSTGRES_PASSWORD=password
       - POSTGRES_DB=psik
+    ports:
+      - "5455:5432"

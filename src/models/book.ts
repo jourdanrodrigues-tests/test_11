@@ -11,10 +11,14 @@ export class Book extends Sequelize.Model<
   declare description: string;
 }
 
-export default (sequelize: Sequelize.Sequelize) =>
-  Book.init(
+export default (sequelize: Sequelize.Sequelize) => {
+  return Book.init(
     {
-      id: { type: Sequelize.UUID, primaryKey: true },
+      id: {
+        type: Sequelize.UUID,
+        defaultValue: Sequelize.UUIDV4,
+        primaryKey: true
+      },
       name: { type: Sequelize.STRING, allowNull: false },
       pages: { type: Sequelize.INTEGER, allowNull: false },
       publishedAt: { type: Sequelize.DATE, allowNull: false },
@@ -22,3 +26,4 @@ export default (sequelize: Sequelize.Sequelize) =>
     },
     { sequelize }
   );
+};

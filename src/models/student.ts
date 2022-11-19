@@ -14,7 +14,11 @@ export class Student extends Sequelize.Model<
 export default (sequelize: Sequelize.Sequelize) =>
   Student.init(
     {
-      id: { type: Sequelize.UUID, primaryKey: true },
+      id: {
+        type: Sequelize.UUID,
+        defaultValue: Sequelize.UUIDV4,
+        primaryKey: true
+      },
       name: { type: Sequelize.STRING, allowNull: false },
       lastName: { type: Sequelize.STRING, allowNull: false },
       email: { type: Sequelize.STRING, allowNull: false },

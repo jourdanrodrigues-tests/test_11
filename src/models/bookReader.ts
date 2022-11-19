@@ -21,7 +21,11 @@ class BookReader extends Sequelize.Model<
 export default (sequelize: Sequelize.Sequelize) =>
   BookReader.init(
     {
-      id: { type: Sequelize.UUID, primaryKey: true },
+      id: {
+        type: Sequelize.UUID,
+        defaultValue: Sequelize.UUIDV4,
+        primaryKey: true
+      },
       studentId: { type: Sequelize.UUID, references: buildReference(Student) },
       bookId: { type: Sequelize.UUID, references: buildReference(Book) }
     },
@@ -35,6 +39,6 @@ function buildReference(
     model,
     key: 'id',
     // @ts-ignore
-    deferrable: Deferrable.INITIALLY_IMMEDIATE
+    deferrable: Sequelize.Deferrable.INITIALLY_IMMEDIATE
   };
 }
