@@ -1,5 +1,9 @@
 import express from 'express';
-import { studentController, bookController } from './controllers';
+import {
+  studentController,
+  bookController,
+  bookReaderController
+} from './controllers';
 
 const routes = express.Router();
 
@@ -15,7 +19,7 @@ routes.patch(
   studentController.validateUpdate,
   studentController.update
 );
-routes.delete('/students/:id', studentController.deleteOne);
+routes.delete('/students/:id', studentController.delete);
 
 routes.get('/books', bookController.list);
 routes.get('/books/:id', bookController.get);
@@ -25,6 +29,14 @@ routes.patch(
   bookController.validateUpdate,
   bookController.update
 );
-routes.delete('/books/:id', bookController.deleteOne);
+routes.delete('/books/:id', bookController.delete);
+
+routes.get('/bookReaders', bookReaderController.list);
+routes.post(
+  '/bookReaders',
+  bookReaderController.validateCreate,
+  bookReaderController.create
+);
+routes.delete('/bookReaders/:id', bookReaderController.delete);
 
 export default routes;

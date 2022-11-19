@@ -9,7 +9,7 @@ import { Book } from './book';
 
 import * as Sequelize from 'sequelize';
 
-class BookReader extends Sequelize.Model<
+export class BookReader extends Sequelize.Model<
   Sequelize.InferAttributes<BookReader>,
   Sequelize.InferCreationAttributes<BookReader>
 > {
