@@ -14,15 +14,13 @@ const server = new ApolloServer({ typeDefs, resolvers });
 const app = express();
 app.use(express.json());
 app.use(routes);
-
-sequelize
-  .sync()
-  .then(() => server.start())
-  .then(() => {
-    server.applyMiddleware({ app });
-    app.listen(PORT, () => {
-      const message = `Server started on the port ${PORT} (GraphQL at ${server.graphqlPath})`;
-      // eslint-disable-next-line no-console
-      console.log(message);
-    });
+(async () => {
+  await sequelize.sync();
+  await server.start();
+  server.applyMiddleware({ app });
+  app.listen(PORT, () => {
+    const message = `Server started on the port ${PORT} (GraphQL at ${server.graphqlPath})`;
+    // eslint-disable-next-line no-console
+    console.log(message);
   });
+})();
