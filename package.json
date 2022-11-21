@@ -1,14 +1,14 @@
 {
   "name": "psik",
   "version": "0.0.1",
-  "main": "src/index.js",
+  "main": "src/server.ts",
   "keywords": [],
   "author": "Jourdan Rodrigues",
   "license": "ISC",
   "scripts": {
     "start": "npm run build && node build/index.js",
-    "start:dev": "ts-node src/server/index.ts",
-    "start:dev:watch": "npx nodemon src/server/index.ts",
+    "start:dev": "ts-node src/serverts",
+    "start:dev:watch": "npx nodemon src/server.ts",
     "build": "rimraf ./build && tsc",
     "lint": "eslint . --ext .ts",
     "prettier-format": "prettier --config .prettierrc 'src/**/*.ts' --write",

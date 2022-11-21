@@ -18,7 +18,7 @@ if (typeof dbUrl !== 'string') {
 export const sequelize = new Sequelize(dbUrl, config);
 
 // Executing "init" sort of manually to assure the init order
-const db = [initBook, initStudent, initBookReader].reduce(
+const models = [initBook, initStudent, initBookReader].reduce(
   (output, initModel) => {
     const model = initModel(sequelize);
     return { ...output, [model.name]: model };
@@ -27,12 +27,12 @@ const db = [initBook, initStudent, initBookReader].reduce(
   {} as { [key: string]: any }
 );
 
-Object.keys(db).forEach((modelName) => {
-  if (!db[modelName].associate) return;
-  db[modelName].associate(db);
+Object.values(models).forEach((model) => {
+  if (!model.associate) return;
+  model.associate(models);
 });
 
-db.sequelize = sequelize;
-db.Sequelize = Sequelize;
+models.sequelize = sequelize;
+models.Sequelize = Sequelize;
 
-export default db;
+export default models;

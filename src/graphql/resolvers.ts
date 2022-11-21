@@ -3,6 +3,7 @@ import { Student } from '../models/student';
 import { BookReader } from '../models/bookReader';
 import { Book } from '../models/book';
 import Joi from 'joi';
+import { Op } from 'sequelize';
 
 const newReaderValidator = Joi.object({
   studentId: Joi.string().uuid().required(),
@@ -16,16 +17,10 @@ const bookValidator = Joi.object({
   publishedAt: Joi.date().iso().required()
 });
 
-const newStudentValidator = Joi.object({
+const studentValidator = Joi.object({
   name: Joi.string().required().min(1).max(32),
   lastName: Joi.string().required().min(1).max(32),
   email: Joi.string().email().required(),
-  birthDate: Joi.date().iso().optional().allow(null)
-});
-
-const updateStudentValidator = Joi.object({
-  name: Joi.string().required().min(1).max(32),
-  lastName: Joi.string().required().min(1).max(32),
   birthDate: Joi.date().iso().optional().allow(null)
 });
 
@@ -40,7 +35,7 @@ const resolvers = {
   },
   Mutation: {
     createStudent: async (_: any, payload: any) => {
-      const { value: data, error } = newStudentValidator.validate(payload);
+      const { value: data, error } = studentValidator.validate(payload);
       if (error) return error;
       // TODO: Implement email confirmation
       const { email } = data;
@@ -48,37 +43,9 @@ const resolvers = {
       if (student === null) return Student.create(payload);
       throw new Error('This email is already in use by another student.');
     },
-    updateStudent: async (_: any, payload: any) => {
-      const { value, error } = updateStudentValidator.validate(payload);
-      const { id: studentId, ...data } = value;
-      if (error) return error;
-      // No changes to be made if not data was sent
-      if (Object.keys(data).length === 0) return Student.findByPk(studentId);
-      const [affected, students] = await Student.update(data, {
-        where: { id: studentId },
-        returning: true
-      });
-      if (affected === 0) return new Error('Student not found.');
-      // Since there is an affected row, we can assume it's in this array
-      return students.find(({ id }) => id === studentId);
-    },
     createBook: (_: any, payload: any) => {
       const { value: data, error } = bookValidator.validate(payload);
       return error || Book.create(data);
-    },
-    updateBook: async (_: any, payload: any) => {
-      const { value, error } = bookValidator.validate(payload);
-      const { id: bookId, ...data } = value;
-      if (error) return error;
-      // No changes to be made if not data was sent
-      if (Object.keys(data).length === 0) return Book.findByPk(bookId);
-      const [affected, books] = await Book.update(data, {
-        where: { id: bookId },
-        returning: true
-      });
-      if (affected === 0) return new Error('Book not found.');
-      // Since there is an affected row, we can assume it's in this array
-      return books.find(({ id }) => id === bookId);
     },
     createBookReader: async (_: any, payload: any) => {
       const result = newReaderValidator.validate(payload);
@@ -99,6 +66,24 @@ const resolvers = {
       );
       if (alreadyReading) return BookReader.create(result.value);
       return new Error('This student is already reading this book.');
+    }
+  },
+  Student: {
+    books: async ({ id }: any) => {
+      // TODO: "Associate" models to do this in one query
+      const readers = await BookReader.findAll({ where: { studentId: id } });
+      const bookIds = readers.map((reader) => reader.bookId);
+      // @ts-ignore
+      return Book.findAll({ where: { id: { [Op.in]: bookIds } } });
+    }
+  },
+  Book: {
+    students: async ({ id }: any) => {
+      // TODO: "Associate" models to do this in one query
+      const readers = await BookReader.findAll({ where: { bookId: id } });
+      const studentIds = readers.map((reader) => reader.studentId);
+      // @ts-ignore
+      return Student.findAll({ where: { id: { [Op.in]: studentIds } } });
     }
   },
   BookReader: {

@@ -7,6 +7,7 @@ const typeDefs = gql`
     lastName: String
     email: String
     birthDate: String
+    books: [Book!]!
   }
   type Book {
     id: String
@@ -14,6 +15,7 @@ const typeDefs = gql`
     pages: Int
     publishedAt: String
     description: String
+    students: [Student!]!
   }
   type BookReader {
     id: String
@@ -35,20 +37,7 @@ const typeDefs = gql`
       email: String
       birthDate: String
     ): Student!
-    updateStudent(
-      id: String
-      name: String
-      lastName: String
-      birthDate: String
-    ): Student!
     createBook(
-      name: String
-      description: String
-      pages: Int
-      publishedAt: String
-    ): Book!
-    updateBook(
-      id: String
       name: String
       description: String
       pages: Int
