@@ -35,7 +35,20 @@ const typeDefs = gql`
       email: String
       birthDate: String
     ): Student!
+    updateStudent(
+      id: String
+      name: String
+      lastName: String
+      birthDate: String
+    ): Student!
     createBook(
+      name: String
+      description: String
+      pages: Int
+      publishedAt: String
+    ): Book!
+    updateBook(
+      id: String
       name: String
       description: String
       pages: Int
