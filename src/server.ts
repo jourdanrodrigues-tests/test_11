@@ -14,7 +14,7 @@ app.use(express.json());
   await apolloServer.start();
   apolloServer.applyMiddleware({ app });
   app.listen(PORT, () => {
-    const message = `Server started on the port ${PORT} (GraphQL at ${apolloServer.graphqlPath})`;
+    const message = `GraphQL started at http://localhost:${PORT}${apolloServer.graphqlPath})`;
     // eslint-disable-next-line no-console
     console.log(message);
   });
