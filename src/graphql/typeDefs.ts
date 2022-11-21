@@ -37,12 +37,14 @@ const typeDefs = gql`
       email: String
       birthDate: String
     ): Student!
+    deleteStudent(id: String): Boolean
     createBook(
       name: String
       description: String
       pages: Int
       publishedAt: String
     ): Book!
+    deleteBook(id: String): Boolean
     createBookReader(studentId: String, bookId: String): BookReader!
   }
 `;

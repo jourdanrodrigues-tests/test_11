@@ -43,9 +43,19 @@ const resolvers = {
       if (student === null) return Student.create(payload);
       throw new Error('This email is already in use by another student.');
     },
+    deleteStudent: async (_: any, { id }: any) => {
+      await BookReader.destroy({ where: { studentId: id } });
+      const affected = await Student.destroy({ where: { id } });
+      if (affected === 0) return new Error('Student not found.');
+    },
     createBook: (_: any, payload: any) => {
       const { value: data, error } = bookValidator.validate(payload);
       return error || Book.create(data);
+    },
+    deleteBook: async (_: any, { id }: any) => {
+      await BookReader.destroy({ where: { bookId: id } });
+      const affected = await Book.destroy({ where: { id } });
+      if (affected === 0) return new Error('Book not found.');
     },
     createBookReader: async (_: any, payload: any) => {
       const result = newReaderValidator.validate(payload);
